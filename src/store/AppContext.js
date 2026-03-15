@@ -1,6 +1,9 @@
-import { createContext, useContext, useReducer, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const AppContext = createContext();
+
+const STORAGE_KEY = 'assistme-state';
 
 const initialLabels = [
   { id: 'work', name: 'Work', color: '#2563eb', noteCount: 0 },
@@ -111,21 +114,12 @@ const initialSettings = {
   passcode: '1234',
 };
 
-function getInitialState() {
-  try {
-    const saved = localStorage.getItem('assistme-state');
-    if (saved) {
-      return JSON.parse(saved);
-    }
-  } catch (e) {
-    // ignore
-  }
-  return {
-    notes: initialNotes,
-    labels: initialLabels,
-    settings: initialSettings,
-  };
-}
+const defaultState = {
+  notes: initialNotes,
+  labels: initialLabels,
+  settings: initialSettings,
+  loaded: false,
+};
 
 function recalcLabelCounts(notes, labels) {
   return labels.map((l) => ({
@@ -137,6 +131,11 @@ function recalcLabelCounts(notes, labels) {
 function appReducer(state, action) {
   let newState;
   switch (action.type) {
+    case 'LOAD_STATE':
+      newState = { ...action.payload, loaded: true };
+      break;
+    case 'SET_LOADED':
+      return { ...state, loaded: true };
     case 'ADD_NOTE':
       newState = { ...state, notes: [action.payload, ...state.notes] };
       break;
@@ -155,10 +154,7 @@ function appReducer(state, action) {
         ...state,
         notes: state.notes.map((n) =>
           n.id === noteId
-            ? {
-                ...n,
-                tasks: n.tasks.map((t) => (t.id === taskId ? { ...t, completed: !t.completed } : t)),
-              }
+            ? { ...n, tasks: n.tasks.map((t) => (t.id === taskId ? { ...t, completed: !t.completed } : t)) }
             : n
         ),
       };
@@ -166,12 +162,6 @@ function appReducer(state, action) {
     }
     case 'ADD_LABEL':
       newState = { ...state, labels: [...state.labels, action.payload] };
-      break;
-    case 'UPDATE_LABEL':
-      newState = {
-        ...state,
-        labels: state.labels.map((l) => (l.id === action.payload.id ? { ...l, ...action.payload } : l)),
-      };
       break;
     case 'DELETE_LABEL':
       newState = {
@@ -181,11 +171,10 @@ function appReducer(state, action) {
       };
       break;
     case 'COMPLETE_REMINDER': {
-      const noteId = action.payload;
       newState = {
         ...state,
         notes: state.notes.map((n) =>
-          n.id === noteId && n.reminder ? { ...n, reminder: { ...n.reminder, completed: true } } : n
+          n.id === action.payload && n.reminder ? { ...n, reminder: { ...n.reminder, completed: true } } : n
         ),
       };
       break;
@@ -201,14 +190,30 @@ function appReducer(state, action) {
 }
 
 export function AppProvider({ children }) {
-  const [state, dispatch] = useReducer(appReducer, null, getInitialState);
+  const [state, dispatch] = useReducer(appReducer, defaultState);
 
   useEffect(() => {
-    const stateWithCounts = {
-      ...state,
-      labels: recalcLabelCounts(state.notes, state.labels),
-    };
-    localStorage.setItem('assistme-state', JSON.stringify(stateWithCounts));
+    (async () => {
+      try {
+        const saved = await AsyncStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          parsed.labels = recalcLabelCounts(parsed.notes, parsed.labels);
+          dispatch({ type: 'LOAD_STATE', payload: parsed });
+        } else {
+          dispatch({ type: 'SET_LOADED' });
+        }
+      } catch {
+        dispatch({ type: 'SET_LOADED' });
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    if (state.loaded) {
+      const { loaded, ...toSave } = state;
+      AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+    }
   }, [state]);
 
   return <AppContext.Provider value={{ state, dispatch }}>{children}</AppContext.Provider>;
