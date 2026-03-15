@@ -1,0 +1,188 @@
+.editor-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 150;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+}
+
+.editor-modal {
+  background: #fff;
+  border-radius: 20px 20px 0 0;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.editor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.editor-back {
+  background: none;
+  border: none;
+  color: #2563eb;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.editor-header-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.editor-delete {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.editor-save {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.editor-title {
+  width: 100%;
+  border: none;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1f2937;
+  outline: none;
+  margin-bottom: 12px;
+  padding: 0;
+}
+
+.editor-type-toggle {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.editor-type-toggle button {
+  padding: 6px 16px;
+  border-radius: 8px;
+  border: 1.5px solid #d1d5db;
+  background: #fff;
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.editor-type-toggle button.active {
+  background: #2563eb;
+  color: #fff;
+  border-color: #2563eb;
+}
+
+.editor-content {
+  width: 100%;
+  min-height: 200px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 15px;
+  color: #374151;
+  resize: vertical;
+  outline: none;
+  font-family: inherit;
+  line-height: 1.6;
+}
+
+.editor-tasks {
+  margin-bottom: 16px;
+}
+
+.editor-task-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.editor-task-text {
+  font-size: 14px;
+  color: #374151;
+}
+
+.editor-task-remove {
+  background: none;
+  border: none;
+  color: #ef4444;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.editor-task-add {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.editor-task-add input {
+  flex: 1;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 14px;
+  outline: none;
+}
+
+.editor-task-add button {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  width: 36px;
+  height: 36px;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.editor-labels {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.editor-labels-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b7280;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.editor-label-chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.editor-label-chip {
+  padding: 4px 12px;
+  border-radius: 12px;
+  border: 1.5px solid;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}

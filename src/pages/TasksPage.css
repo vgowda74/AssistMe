@@ -1,0 +1,132 @@
+.tasks-page {
+  padding: 16px;
+  padding-bottom: 80px;
+}
+
+.tasks-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.tasks-header h1 {
+  font-size: 28px;
+  font-weight: 800;
+  color: #1f2937;
+}
+
+.tasks-settings {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.tasks-tabs {
+  display: flex;
+  background: #f3f4f6;
+  border-radius: 10px;
+  padding: 3px;
+  margin-bottom: 16px;
+}
+
+.tasks-tab {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tasks-tab.active {
+  background: #fff;
+  color: #1f2937;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.tasks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.task-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 14px 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+}
+
+.task-item.completed {
+  opacity: 0.6;
+}
+
+.task-item-checkbox {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid #d1d5db;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 12px;
+  color: transparent;
+}
+
+.task-item-checkbox.checked {
+  background: #22c55e;
+  border-color: #22c55e;
+  color: #fff;
+}
+
+.task-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.task-item-text {
+  display: block;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.task-item.completed .task-item-text {
+  text-decoration: line-through;
+  color: #9ca3af;
+}
+
+.task-item-source {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.task-item-due {
+  font-size: 12px;
+  font-weight: 600;
+  color: #2563eb;
+  white-space: nowrap;
+}
+
+.task-item-due.overdue {
+  color: #ef4444;
+}
+
+.tasks-section-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #9ca3af;
+  letter-spacing: 0.5px;
+  margin-top: 8px;
+}
