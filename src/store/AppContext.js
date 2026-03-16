@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import initialRecipes from '../data/recipes';
 
 const AppContext = createContext();
 
@@ -117,6 +118,7 @@ const initialSettings = {
 const defaultState = {
   notes: initialNotes,
   labels: initialLabels,
+  recipes: initialRecipes,
   settings: initialSettings,
   loaded: false,
 };
@@ -179,6 +181,12 @@ function appReducer(state, action) {
       };
       break;
     }
+    case 'ADD_RECIPE':
+      newState = { ...state, recipes: [action.payload, ...(state.recipes || [])] };
+      break;
+    case 'DELETE_RECIPE':
+      newState = { ...state, recipes: (state.recipes || []).filter((r) => r.id !== action.payload) };
+      break;
     case 'UPDATE_SETTINGS':
       newState = { ...state, settings: { ...state.settings, ...action.payload } };
       break;
@@ -199,6 +207,7 @@ export function AppProvider({ children }) {
         if (saved) {
           const parsed = JSON.parse(saved);
           parsed.labels = recalcLabelCounts(parsed.notes, parsed.labels);
+          if (!parsed.recipes) parsed.recipes = initialRecipes;
           dispatch({ type: 'LOAD_STATE', payload: parsed });
         } else {
           dispatch({ type: 'SET_LOADED' });
