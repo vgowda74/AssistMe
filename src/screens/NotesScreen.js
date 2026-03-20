@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f9fafb' },
   header: {
     backgroundColor: '#fff',
-    paddingTop: 8,
+    paddingTop: 20,
     paddingHorizontal: 16,
     paddingBottom: 4,
   },
@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
   filterText: { fontSize: 13, fontWeight: '600', color: '#6b7280' },
   filterTextActive: { color: '#fff' },
   list: { flex: 1 },
-  listContent: { padding: 16, paddingBottom: 100 },
+  listContent: { padding: 16, paddingBottom: 80 },
   empty: { textAlign: 'center', color: '#9ca3af', paddingTop: 40, fontSize: 15 },
   fab: {
     position: 'absolute',
