@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import Constants from 'expo-constants';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../store/AppContext';
 import NoteCard from '../components/NoteCard';
@@ -9,6 +10,7 @@ import VoiceModal from '../components/VoiceModal';
 export default function NotesScreen({ navigation }) {
   const { state } = useApp();
   const insets = useSafeAreaInsets();
+  const statusBarHeight = insets.top || Constants.statusBarHeight || 44;
   const [activeFilter, setActiveFilter] = useState('all');
   const [showVoice, setShowVoice] = useState(false);
 
@@ -25,7 +27,7 @@ export default function NotesScreen({ navigation }) {
   return (
     <View style={styles.container}>
       {/* Header */}
-      <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
+      <View style={[styles.header, { paddingTop: statusBarHeight + 12 }]}>
         <View style={styles.headerRow}>
           <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
             <Ionicons name="menu" size={24} color="#2563eb" />
