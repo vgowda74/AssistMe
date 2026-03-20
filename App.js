@@ -14,8 +14,6 @@ import RemindersScreen from './src/screens/RemindersScreen';
 import SearchScreen from './src/screens/SearchScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 import NoteEditorScreen from './src/screens/NoteEditorScreen';
-import RecipesScreen from './src/screens/RecipesScreen';
-import RecipeDetailScreen from './src/screens/RecipeDetailScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -30,7 +28,6 @@ function TabNavigator() {
           switch (route.name) {
             case 'Notes': iconName = focused ? 'home' : 'home-outline'; break;
             case 'Tasks': iconName = focused ? 'checkbox' : 'checkbox-outline'; break;
-            case 'Recipes': iconName = focused ? 'restaurant' : 'restaurant-outline'; break;
             case 'Labels': iconName = focused ? 'pricetag' : 'pricetag-outline'; break;
             case 'Reminders': iconName = focused ? 'notifications' : 'notifications-outline'; break;
           }
@@ -49,7 +46,6 @@ function TabNavigator() {
     >
       <Tab.Screen name="Notes" component={NotesScreen} />
       <Tab.Screen name="Tasks" component={TasksScreen} />
-      <Tab.Screen name="Recipes" component={RecipesScreen} />
       <Tab.Screen name="Labels" component={LabelsScreen} />
       <Tab.Screen name="Reminders" component={RemindersScreen} />
     </Tab.Navigator>
@@ -66,7 +62,6 @@ export default function App() {
             <Stack.Screen name="Search" component={SearchScreen} options={{ animation: 'fade' }} />
             <Stack.Screen name="Settings" component={SettingsScreen} options={{ animation: 'slide_from_left' }} />
             <Stack.Screen name="NoteEditor" component={NoteEditorScreen} options={{ animation: 'slide_from_bottom' }} />
-            <Stack.Screen name="RecipeDetail" component={RecipeDetailScreen} options={{ animation: 'slide_from_right' }} />
           </Stack.Navigator>
         </NavigationContainer>
         <StatusBar style="dark" />
