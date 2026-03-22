@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, TextInput, ScrollView, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import Constants from 'expo-constants';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../store/AppContext';
 
 const COLOR_OPTIONS = ['#2563eb', '#22c55e', '#ef4444', '#f59e0b', '#a855f7', '#ec4899', '#14b8a6'];
 
 export default function LabelsScreen() {
   const { state, dispatch } = useApp();
-  const [isEditing, setIsEditing] = useState(false);
+  const insets = useSafeAreaInsets();
+  const statusBarHeight = insets.top || Constants.statusBarHeight || 44;
   const [showCreate, setShowCreate] = useState(false);
   const [newName, setNewName] = useState('');
   const [newColor, setNewColor] = useState(COLOR_OPTIONS[0]);
@@ -30,37 +33,30 @@ export default function LabelsScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: statusBarHeight + 12 }]}>
         <Text style={styles.title}>Labels</Text>
-        <TouchableOpacity onPress={() => setIsEditing(!isEditing)}>
-          <Text style={styles.editBtn}>{isEditing ? 'Done' : 'Edit'}</Text>
-        </TouchableOpacity>
       </View>
 
       <ScrollView style={styles.list} contentContainerStyle={styles.listContent}>
         <View style={styles.card}>
           {state.labels.map((label, i) => (
             <TouchableOpacity key={label.id} style={[styles.labelItem, i < state.labels.length - 1 && styles.borderBottom]}>
-              {isEditing && (
-                <TouchableOpacity
-                  style={styles.deleteBtn}
-                  onPress={() => dispatch({ type: 'DELETE_LABEL', payload: label.id })}
-                >
-                  <Text style={styles.deleteBtnText}>−</Text>
-                </TouchableOpacity>
-              )}
               <View style={[styles.dot, { backgroundColor: label.color }]} />
+              <Ionicons name="pricetag-outline" size={18} color="#9ca3af" />
               <Text style={styles.labelName}>{label.name}</Text>
-              <Text style={styles.labelCount}>{label.noteCount} notes</Text>
-              <Text style={styles.arrow}>›</Text>
+              <Text style={styles.labelCount}>{label.noteCount} {label.noteCount === 1 ? 'note' : 'notes'}</Text>
+              <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
             </TouchableOpacity>
           ))}
-        </View>
 
-        <TouchableOpacity style={styles.createBtn} onPress={() => setShowCreate(!showCreate)}>
-          <Ionicons name="sparkles-outline" size={18} color="#2563eb" />
-          <Text style={styles.createBtnText}>Create New Label</Text>
-        </TouchableOpacity>
+          {/* Create New Label - inside the card */}
+          <TouchableOpacity style={[styles.createRow, state.labels.length > 0 && styles.borderTop]} onPress={() => setShowCreate(!showCreate)}>
+            <View style={styles.createIcon}>
+              <Ionicons name="add" size={18} color="#fff" />
+            </View>
+            <Text style={styles.createText}>Create New Label</Text>
+          </TouchableOpacity>
+        </View>
 
         {showCreate && (
           <View style={styles.createForm}>
@@ -94,16 +90,11 @@ export default function LabelsScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f9fafb' },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     paddingHorizontal: 16,
-    paddingTop: 8,
     paddingBottom: 12,
     backgroundColor: '#fff',
   },
-  title: { fontSize: 28, fontWeight: '800', color: '#1f2937' },
-  editBtn: { color: '#2563eb', fontSize: 15, fontWeight: '600' },
+  title: { fontSize: 32, fontWeight: '800', color: '#1f2937' },
   list: { flex: 1 },
   listContent: { padding: 16 },
   card: {
@@ -123,34 +114,25 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   borderBottom: { borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
-  deleteBtn: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: '#ef4444',
+  borderTop: { borderTopWidth: 1, borderTopColor: '#f3f4f6' },
+  dot: { width: 12, height: 12, borderRadius: 6 },
+  labelName: { flex: 1, fontSize: 16, fontWeight: '600', color: '#1f2937' },
+  labelCount: { fontSize: 14, color: '#9ca3af' },
+  createRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    padding: 16,
+  },
+  createIcon: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#2563eb',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  deleteBtnText: { color: '#fff', fontSize: 18, fontWeight: '700', marginTop: -2 },
-  dot: { width: 14, height: 14, borderRadius: 7 },
-  labelName: { flex: 1, fontSize: 16, fontWeight: '600', color: '#1f2937' },
-  labelCount: { fontSize: 14, color: '#9ca3af' },
-  arrow: { fontSize: 18, color: '#d1d5db' },
-  createBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    marginTop: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 3,
-    elevation: 2,
-  },
-  createBtnText: { color: '#2563eb', fontSize: 15, fontWeight: '600' },
+  createText: { color: '#2563eb', fontSize: 15, fontWeight: '600' },
   createForm: {
     backgroundColor: '#fff',
     borderRadius: 12,

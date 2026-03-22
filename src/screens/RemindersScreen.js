@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import Constants from 'expo-constants';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../store/AppContext';
 
 function formatReminderDate(dateStr) {
@@ -14,13 +16,15 @@ function formatReminderDate(dateStr) {
   if (taskDay.getTime() === today.getTime()) return `Today at ${time}`;
   if (taskDay.getTime() === tomorrow.getTime()) return `Tomorrow at ${time}`;
   if (taskDay < today) {
-    return `${d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} at ${time} — Overdue`;
+    return `${d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} at ${time}`;
   }
   return `${d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} at ${time}`;
 }
 
-export default function RemindersScreen() {
+export default function RemindersScreen({ navigation }) {
   const { state, dispatch } = useApp();
+  const insets = useSafeAreaInsets();
+  const statusBarHeight = insets.top || Constants.statusBarHeight || 44;
   const [activeTab, setActiveTab] = useState('upcoming');
 
   const now = new Date();
@@ -48,11 +52,11 @@ export default function RemindersScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Reminders</Text>
-        <TouchableOpacity>
-          <Ionicons name="add" size={26} color="#1f2937" />
+      <View style={[styles.header, { paddingTop: statusBarHeight + 12 }]}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+          <Ionicons name="chevron-back" size={26} color="#1f2937" />
         </TouchableOpacity>
+        <Text style={styles.title}>Reminders</Text>
       </View>
 
       <View style={styles.tabs}>
@@ -74,15 +78,19 @@ export default function RemindersScreen() {
             style={[styles.reminderItem, r.overdue && styles.reminderOverdue]}
             onPress={() => !r.completed && dispatch({ type: 'COMPLETE_REMINDER', payload: r.noteId })}
           >
-            <View style={[styles.dot, r.overdue && styles.dotOverdue]} />
+            <View style={[styles.dot, r.overdue ? styles.dotOverdue : styles.dotNormal]} />
             <View style={styles.reminderInfo}>
               <Text style={[styles.reminderTitle, r.overdue && styles.reminderTitleOverdue]}>{r.title}</Text>
-              <Text style={styles.reminderNote}>{r.noteTitle} note</Text>
+              <Text style={styles.reminderNote}>from {r.noteTitle}</Text>
               <Text style={[styles.reminderDate, r.overdue && styles.reminderDateOverdue]}>
                 {formatReminderDate(r.date)}
               </Text>
             </View>
-            <Text style={{ fontSize: 20 }}>🔔</Text>
+            <Ionicons
+              name="notifications-outline"
+              size={22}
+              color={r.overdue ? '#ef4444' : '#9ca3af'}
+            />
           </TouchableOpacity>
         ))}
 
@@ -96,14 +104,16 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f9fafb' },
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingTop: 8,
     paddingBottom: 12,
     backgroundColor: '#fff',
+    gap: 4,
   },
-  title: { fontSize: 28, fontWeight: '800', color: '#1f2937' },
+  backBtn: {
+    marginRight: 4,
+  },
+  title: { fontSize: 32, fontWeight: '800', color: '#1f2937' },
   tabs: {
     flexDirection: 'row',
     backgroundColor: '#f3f4f6',
@@ -111,6 +121,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     padding: 3,
     marginBottom: 12,
+    marginTop: 8,
   },
   tab: { flex: 1, paddingVertical: 8, alignItems: 'center', borderRadius: 8 },
   tabActive: {
@@ -132,7 +143,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 12,
     padding: 16,
-    marginBottom: 8,
+    marginBottom: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.06,
@@ -144,13 +155,14 @@ const styles = StyleSheet.create({
     borderLeftWidth: 3,
     borderLeftColor: '#ef4444',
   },
-  dot: { width: 12, height: 12, borderRadius: 6, backgroundColor: '#2563eb' },
+  dot: { width: 12, height: 12, borderRadius: 6 },
+  dotNormal: { backgroundColor: '#2563eb' },
   dotOverdue: { backgroundColor: '#ef4444' },
   reminderInfo: { flex: 1 },
   reminderTitle: { fontSize: 16, fontWeight: '700', color: '#1f2937' },
-  reminderTitleOverdue: { color: '#ef4444' },
+  reminderTitleOverdue: { color: '#1f2937' },
   reminderNote: { fontSize: 13, color: '#9ca3af', marginTop: 2 },
-  reminderDate: { fontSize: 12, color: '#6b7280', marginTop: 2 },
+  reminderDate: { fontSize: 13, color: '#2563eb', marginTop: 2 },
   reminderDateOverdue: { color: '#ef4444' },
   empty: { textAlign: 'center', color: '#9ca3af', paddingTop: 40, fontSize: 15 },
 });

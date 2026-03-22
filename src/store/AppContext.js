@@ -8,8 +8,9 @@ const initialLabels = [
   { id: 'work', name: 'Work', color: '#2563eb', noteCount: 0 },
   { id: 'personal', name: 'Personal', color: '#22c55e', noteCount: 0 },
   { id: 'important', name: 'Important', color: '#ef4444', noteCount: 0 },
-  { id: 'todo', name: 'To-Do', color: '#f59e0b', noteCount: 0 },
-  { id: 'ideas', name: 'Ideas', color: '#a855f7', noteCount: 0 },
+  { id: 'reading', name: 'Reading', color: '#a855f7', noteCount: 0 },
+  { id: 'travel', name: 'Travel', color: '#f59e0b', noteCount: 0 },
+  { id: 'project', name: 'Project', color: '#1e40af', noteCount: 0 },
 ];
 
 const initialNotes = [
@@ -46,7 +47,7 @@ const initialNotes = [
     id: '3',
     title: 'Book Recommendations',
     content: '• Atomic Habits\n• Deep Work\n• The Lean Startup',
-    labels: ['todo'],
+    labels: ['reading'],
     type: 'text',
     createdAt: new Date(Date.now() - 172800000).toISOString(),
     updatedAt: new Date(Date.now() - 172800000).toISOString(),
@@ -89,7 +90,7 @@ const initialNotes = [
     id: '6',
     title: 'Hiking Trip Planning',
     content: 'Plan route, check weather, pack essentials.',
-    labels: ['personal', 'todo'],
+    labels: ['personal', 'travel'],
     type: 'text',
     createdAt: new Date(Date.now() - 432000000).toISOString(),
     updatedAt: new Date(Date.now() - 432000000).toISOString(),

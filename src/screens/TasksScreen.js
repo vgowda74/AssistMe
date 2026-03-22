@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import Constants from 'expo-constants';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../store/AppContext';
 
 function formatDueDate(dateStr) {
@@ -10,21 +12,24 @@ function formatDueDate(dateStr) {
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const tomorrow = new Date(today.getTime() + 86400000);
   const taskDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const time = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
 
   if (taskDay < today) {
-    return { text: `${d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} — Overdue`, overdue: true };
+    return { text: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }), overdue: true };
   }
   if (taskDay.getTime() === today.getTime()) {
-    return { text: `Today, ${d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}`, overdue: false };
+    return { text: `Today, ${time}`, overdue: false };
   }
   if (taskDay.getTime() === tomorrow.getTime()) {
-    return { text: 'Tomorrow', overdue: false };
+    return { text: `Tomorrow, ${time}`, overdue: false };
   }
-  return { text: d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }), overdue: false };
+  return { text: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }), overdue: false };
 }
 
 export default function TasksScreen() {
   const { state, dispatch } = useApp();
+  const insets = useSafeAreaInsets();
+  const statusBarHeight = insets.top || Constants.statusBarHeight || 44;
   const [activeTab, setActiveTab] = useState('all');
 
   const allTasks = state.notes.flatMap((note) =>
@@ -58,9 +63,8 @@ export default function TasksScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: statusBarHeight + 12 }]}>
         <Text style={styles.title}>Tasks</Text>
-        <Ionicons name="settings-outline" size={22} color="#6b7280" />
       </View>
 
       <View style={styles.tabs}>
@@ -87,9 +91,14 @@ export default function TasksScreen() {
               <View style={styles.taskCheckbox} />
               <View style={styles.taskInfo}>
                 <Text style={styles.taskText}>{task.text}</Text>
-                <Text style={styles.taskSource}>From: {task.noteTitle}</Text>
+                <Text style={styles.taskSource}>from {task.noteTitle}</Text>
               </View>
-              {due && <Text style={[styles.taskDue, due.overdue && styles.taskDueOverdue]}>{due.text}</Text>}
+              {due && (
+                <View style={styles.dueDateContainer}>
+                  <Text style={[styles.taskDue, due.overdue && styles.taskDueOverdue]}>{due.text}</Text>
+                  {!due.overdue && <View style={styles.dueDot} />}
+                </View>
+              )}
             </TouchableOpacity>
           );
         })}
@@ -97,30 +106,30 @@ export default function TasksScreen() {
         {completed.length > 0 && (
           <>
             <Text style={styles.sectionLabel}>COMPLETED</Text>
-            {completed.map((task) => (
-              <TouchableOpacity
-                key={task.id}
-                style={[styles.taskItem, { opacity: 0.6 }]}
-                onPress={() => dispatch({ type: 'TOGGLE_TASK', payload: { noteId: task.noteId, taskId: task.id } })}
-              >
-                <View style={styles.taskCheckboxDone}>
-                  <Text style={styles.checkmark}>✓</Text>
-                </View>
-                <View style={styles.taskInfo}>
-                  <Text style={[styles.taskText, { textDecorationLine: 'line-through', color: '#9ca3af' }]}>{task.text}</Text>
-                  <Text style={styles.taskSource}>From: {task.noteTitle}</Text>
-                </View>
-              </TouchableOpacity>
-            ))}
+            {completed.map((task) => {
+              const due = formatDueDate(task.dueDate);
+              return (
+                <TouchableOpacity
+                  key={task.id}
+                  style={[styles.taskItem, { opacity: 0.6 }]}
+                  onPress={() => dispatch({ type: 'TOGGLE_TASK', payload: { noteId: task.noteId, taskId: task.id } })}
+                >
+                  <View style={styles.taskCheckboxDone}>
+                    <Ionicons name="checkmark" size={14} color="#fff" />
+                  </View>
+                  <View style={styles.taskInfo}>
+                    <Text style={[styles.taskText, { textDecorationLine: 'line-through', color: '#9ca3af' }]}>{task.text}</Text>
+                    <Text style={styles.taskSource}>from {task.noteTitle}</Text>
+                  </View>
+                  {due && <Text style={[styles.taskDue, { color: '#9ca3af' }]}>{due.text}</Text>}
+                </TouchableOpacity>
+              );
+            })}
           </>
         )}
 
         {filtered.length === 0 && <Text style={styles.empty}>No tasks in this category.</Text>}
       </ScrollView>
-
-      <TouchableOpacity style={styles.fab}>
-        <Ionicons name="add" size={28} color="#fff" />
-      </TouchableOpacity>
     </View>
   );
 }
@@ -128,15 +137,11 @@ export default function TasksScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f9fafb' },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     paddingHorizontal: 16,
-    paddingTop: 8,
     paddingBottom: 12,
     backgroundColor: '#fff',
   },
-  title: { fontSize: 28, fontWeight: '800', color: '#1f2937' },
+  title: { fontSize: 32, fontWeight: '800', color: '#1f2937' },
   tabs: {
     flexDirection: 'row',
     backgroundColor: '#f3f4f6',
@@ -144,6 +149,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     padding: 3,
     marginBottom: 12,
+    marginTop: 8,
   },
   tab: {
     flex: 1,
@@ -169,8 +175,8 @@ const styles = StyleSheet.create({
     gap: 12,
     backgroundColor: '#fff',
     borderRadius: 12,
-    padding: 14,
-    marginBottom: 8,
+    padding: 16,
+    marginBottom: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.06,
@@ -178,49 +184,40 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   taskCheckbox: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     borderWidth: 2,
     borderColor: '#d1d5db',
   },
   taskCheckboxDone: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    backgroundColor: '#22c55e',
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#2563eb',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  checkmark: { color: '#fff', fontSize: 12, fontWeight: '700' },
   taskInfo: { flex: 1 },
-  taskText: { fontSize: 15, fontWeight: '600', color: '#1f2937' },
-  taskSource: { fontSize: 12, color: '#9ca3af', marginTop: 2 },
-  taskDue: { fontSize: 12, fontWeight: '600', color: '#2563eb' },
+  taskText: { fontSize: 16, fontWeight: '600', color: '#1f2937' },
+  taskSource: { fontSize: 13, color: '#9ca3af', marginTop: 2 },
+  dueDateContainer: { alignItems: 'flex-end', gap: 4 },
+  taskDue: { fontSize: 13, fontWeight: '600', color: '#ef4444' },
   taskDueOverdue: { color: '#ef4444' },
+  dueDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#ef4444',
+    alignSelf: 'center',
+  },
   sectionLabel: {
     fontSize: 12,
     fontWeight: '700',
     color: '#9ca3af',
     letterSpacing: 0.5,
-    marginTop: 8,
+    marginTop: 16,
     marginBottom: 8,
   },
   empty: { textAlign: 'center', color: '#9ca3af', paddingTop: 40, fontSize: 15 },
-  fab: {
-    position: 'absolute',
-    bottom: 24,
-    right: 24,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: '#2563eb',
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#2563eb',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 8,
-    elevation: 6,
-  },
 });

@@ -47,7 +47,7 @@ function TabNavigator() {
       <Tab.Screen name="Notes" component={NotesScreen} />
       <Tab.Screen name="Tasks" component={TasksScreen} />
       <Tab.Screen name="Labels" component={LabelsScreen} />
-      <Tab.Screen name="Reminders" component={RemindersScreen} />
+      <Tab.Screen name="Reminders" component={RemindersScreen} options={{ tabBarBadge: '', tabBarBadgeStyle: { backgroundColor: '#ef4444', minWidth: 8, maxHeight: 8, borderRadius: 4, top: 4 } }} />
     </Tab.Navigator>
   );
 }

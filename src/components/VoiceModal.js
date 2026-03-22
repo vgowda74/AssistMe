@@ -1,25 +1,27 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TouchableOpacity, Modal, StyleSheet, Animated } from 'react-native';
+import Constants from 'expo-constants';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '../store/AppContext';
 
 export default function VoiceModal({ visible, onClose }) {
   const { dispatch } = useApp();
+  const insets = useSafeAreaInsets();
+  const statusBarHeight = insets.top || Constants.statusBarHeight || 44;
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
 
-  // Animated waveform bars
-  const bars = useRef(Array.from({ length: 15 }, () => new Animated.Value(10))).current;
+  const bars = useRef(Array.from({ length: 20 }, () => new Animated.Value(10))).current;
 
   useEffect(() => {
     if (visible) {
       setIsListening(true);
       setTranscript('');
-      // Simulate listening with animated bars
       bars.forEach((bar, i) => {
         const animate = () => {
           Animated.sequence([
             Animated.timing(bar, {
-              toValue: Math.random() * 35 + 10,
+              toValue: Math.random() * 40 + 10,
               duration: 300 + Math.random() * 200,
               useNativeDriver: false,
             }),
@@ -89,8 +91,6 @@ export default function VoiceModal({ visible, onClose }) {
     onClose();
   };
 
-  // Simulated speech-to-text: in a real app use expo-speech or a native STT API
-  // For demo, we let user type or show a placeholder
   useEffect(() => {
     if (visible && isListening) {
       const timer = setTimeout(() => {
@@ -101,40 +101,53 @@ export default function VoiceModal({ visible, onClose }) {
   }, [visible, isListening]);
 
   return (
-    <Modal visible={visible} animationType="slide" transparent>
-      <View style={styles.overlay}>
-        <View style={styles.modal}>
-          <TouchableOpacity style={styles.closeBtn} onPress={onClose}>
+    <Modal visible={visible} animationType="slide">
+      <View style={[styles.container, { paddingTop: statusBarHeight + 8 }]}>
+        {/* Header */}
+        <View style={styles.header}>
+          <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
             <Text style={styles.closeText}>✕</Text>
           </TouchableOpacity>
+          <Text style={styles.headerTitle}>Voice Note</Text>
+          <View style={styles.closeBtn} />
+        </View>
 
-          <Text style={styles.status}>{isListening ? 'Listening...' : 'Tap to start'}</Text>
-
-          <View style={styles.waveform}>
-            {bars.map((bar, i) => (
-              <Animated.View
-                key={i}
-                style={[styles.bar, { height: bar }]}
-              />
-            ))}
+        {/* Status */}
+        <View style={styles.statusContainer}>
+          <View style={styles.statusRow}>
+            <View style={styles.redDot} />
+            <Text style={styles.statusText}>{isListening ? 'Listening...' : 'Tap to start'}</Text>
           </View>
+          <Text style={styles.subtitle}>Speak clearly into the microphone</Text>
+        </View>
 
-          {transcript ? (
-            <View style={styles.transcriptBox}>
-              <Text style={styles.transcriptText}>"{transcript}"</Text>
-            </View>
-          ) : null}
+        {/* Waveform */}
+        <View style={styles.waveform}>
+          {bars.map((bar, i) => (
+            <Animated.View
+              key={i}
+              style={[styles.bar, { height: bar }]}
+            />
+          ))}
+        </View>
 
-          <View style={styles.spacer} />
-
-          <View style={styles.actions}>
-            <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
-              <Text style={styles.saveBtnText}>Save</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.reminderBtn} onPress={handleAddReminder}>
-              <Text style={styles.reminderBtnText}>Add Reminder</Text>
-            </TouchableOpacity>
+        {/* Transcript */}
+        {transcript ? (
+          <View style={styles.transcriptBox}>
+            <Text style={styles.transcriptText}>"{transcript}"</Text>
           </View>
+        ) : null}
+
+        <View style={styles.spacer} />
+
+        {/* Actions - stacked vertically */}
+        <View style={styles.actions}>
+          <TouchableOpacity style={styles.reminderBtn} onPress={handleAddReminder}>
+            <Text style={styles.reminderBtnText}>Add Reminder</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
+            <Text style={styles.saveBtnText}>Save</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </Modal>
@@ -142,39 +155,57 @@ export default function VoiceModal({ visible, onClose }) {
 }
 
 const styles = StyleSheet.create({
-  overlay: {
+  container: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modal: {
     backgroundColor: '#fff',
-    borderRadius: 20,
-    width: '90%',
-    minHeight: 420,
-    padding: 32,
+    paddingHorizontal: 24,
+    paddingBottom: 40,
+  },
+  header: {
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 32,
   },
   closeBtn: {
-    position: 'absolute',
-    top: 16,
-    right: 20,
-    padding: 4,
+    width: 36,
+    height: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  closeText: { fontSize: 20, color: '#2563eb' },
-  status: {
-    fontSize: 24,
-    fontWeight: '600',
+  closeText: { fontSize: 20, color: '#1f2937', fontWeight: '500' },
+  headerTitle: { fontSize: 17, fontWeight: '700', color: '#1f2937' },
+  statusContainer: {
+    alignItems: 'center',
+    marginBottom: 32,
+  },
+  statusRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 8,
+  },
+  redDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#f87171',
+  },
+  statusText: {
+    fontSize: 26,
+    fontWeight: '700',
     color: '#2563eb',
-    marginBottom: 24,
-    marginTop: 16,
+  },
+  subtitle: {
+    fontSize: 14,
+    color: '#9ca3af',
   },
   waveform: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: 3,
-    height: 60,
+    height: 80,
     marginBottom: 32,
   },
   bar: {
@@ -184,38 +215,32 @@ const styles = StyleSheet.create({
   },
   transcriptBox: {
     backgroundColor: '#f3f4f6',
-    borderRadius: 12,
-    padding: 16,
-    width: '100%',
+    borderRadius: 16,
+    padding: 20,
+    marginHorizontal: 8,
   },
   transcriptText: {
-    color: '#6b7280',
-    fontStyle: 'italic',
-    fontSize: 15,
-    textAlign: 'center',
+    color: '#374151',
+    fontSize: 16,
+    lineHeight: 24,
   },
   spacer: { flex: 1 },
   actions: {
-    flexDirection: 'row',
     gap: 12,
-    width: '100%',
-    marginTop: 24,
   },
+  reminderBtn: {
+    padding: 16,
+    borderRadius: 12,
+    backgroundColor: '#ef4444',
+    alignItems: 'center',
+  },
+  reminderBtnText: { color: '#fff', fontSize: 16, fontWeight: '700' },
   saveBtn: {
-    flex: 1,
-    padding: 14,
+    padding: 16,
     borderRadius: 12,
     borderWidth: 2,
     borderColor: '#2563eb',
     alignItems: 'center',
   },
-  saveBtnText: { color: '#2563eb', fontSize: 15, fontWeight: '600' },
-  reminderBtn: {
-    flex: 1,
-    padding: 14,
-    borderRadius: 12,
-    backgroundColor: '#2563eb',
-    alignItems: 'center',
-  },
-  reminderBtnText: { color: '#fff', fontSize: 15, fontWeight: '600' },
+  saveBtnText: { color: '#2563eb', fontSize: 16, fontWeight: '700' },
 });

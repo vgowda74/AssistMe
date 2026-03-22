@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '../store/AppContext';
 
 const LABEL_COLORS = {
@@ -8,6 +9,9 @@ const LABEL_COLORS = {
   important: '#ef4444',
   todo: '#f59e0b',
   ideas: '#a855f7',
+  reading: '#a855f7',
+  travel: '#f59e0b',
+  project: '#1e40af',
 };
 
 function formatTime(dateStr) {
@@ -50,18 +54,22 @@ export default function NoteCard({ note, onPress }) {
       ) : null}
 
       <View style={styles.footer}>
-        <View style={styles.labels}>
+        <View style={styles.labelsRow}>
+          <Ionicons name="pricetag-outline" size={14} color="#9ca3af" />
           {note.labels.map((lid) => {
             const label = state.labels.find((l) => l.id === lid);
             if (!label) return null;
             return (
-              <View key={lid} style={[styles.labelTag, { borderColor: LABEL_COLORS[lid] }]}>
-                <Text style={[styles.labelText, { color: LABEL_COLORS[lid] }]}>{label.name}</Text>
+              <View key={lid} style={[styles.labelTag, { borderColor: LABEL_COLORS[lid] || '#d1d5db' }]}>
+                <Text style={[styles.labelText, { color: LABEL_COLORS[lid] || '#6b7280' }]}>{label.name}</Text>
               </View>
             );
           })}
         </View>
-        <Text style={styles.time}>{note.reminder ? '⏰ ' : ''}{formatTime(note.createdAt)}</Text>
+        <View style={styles.timeRow}>
+          <Ionicons name="time-outline" size={13} color="#9ca3af" />
+          <Text style={styles.time}>{formatTime(note.createdAt)}</Text>
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -109,8 +117,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   checkboxChecked: {
-    backgroundColor: '#2563eb',
-    borderColor: '#2563eb',
+    backgroundColor: '#22c55e',
+    borderColor: '#22c55e',
   },
   checkmark: { color: '#fff', fontSize: 12, fontWeight: '700' },
   taskText: { fontSize: 14, color: '#374151', flex: 1 },
@@ -123,7 +131,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: 8,
   },
-  labels: { flexDirection: 'row', gap: 6, flexWrap: 'wrap' },
+  labelsRow: { flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' },
   labelTag: {
     borderWidth: 1.5,
     borderRadius: 12,
@@ -131,5 +139,6 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
   },
   labelText: { fontSize: 12, fontWeight: '600' },
+  timeRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   time: { fontSize: 12, color: '#9ca3af' },
 });
